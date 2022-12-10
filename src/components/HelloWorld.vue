@@ -67,7 +67,8 @@ export default {
       };
 
       return fetch(`http://localhost:3000/`, requestOptions)
-        .then(response => 
+        .then(response =>
+           
           this.symbols = parseXML(response)
         )
         .catch(error => console.log('error', error));
