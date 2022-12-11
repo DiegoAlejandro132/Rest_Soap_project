@@ -1,19 +1,19 @@
 <template>
   <v-app>
     <v-main>
-      <HelloWorld/>
+      <conversor-moeda/>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import ConversorMoeda from './components/conversor-moeda.vue'
 
 export default {
   name: 'App',
 
   components: {
-    HelloWorld,
+    ConversorMoeda,
   },
 
   data: () => ({
