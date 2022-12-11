@@ -36,7 +36,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-btn elevation="2" color="primary">
+        <v-btn elevation="2" color="primary" @click="symbolsTreatment()">
           Converter
         </v-btn>
       </v-row>
@@ -46,12 +46,12 @@
 
 <script>
 
-const parseXML = require('xml-parse-from-string')
+//const parseXML = require('xml-parse-from-string')
 
 export default {
   data(){
     return{
-      symbols: [],
+      symbols: null,
       de : null,
       para: null
     }
@@ -66,12 +66,16 @@ export default {
         headers: myHeaders
       };
 
-      return fetch(`http://localhost:3000/`, requestOptions)
+      return await fetch(`http://localhost:3000/`, requestOptions)
         .then(response =>
            
-          this.symbols = parseXML(response)
+          this.symbols = response
         )
         .catch(error => console.log('error', error));
+    },
+
+    async symbolsTreatment(){
+      console.log(await this.symbols)
     },
 
     async convert(from, to, amount){
