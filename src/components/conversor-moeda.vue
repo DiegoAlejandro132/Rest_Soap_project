@@ -17,7 +17,7 @@
           </v-col>
         </v-row>
         <v-row justify="center">
-          <v-btn elevation="2" color="primary" @click="convert(de, para, valor)">
+          <v-btn elevation="2" color="primary" @click="convert(para, de, valor)">
             Converter
           </v-btn>
         </v-row>
