@@ -5,14 +5,14 @@
         <h1>Conversor de moedas</h1>
       </v-row>
       <v-card outlined elevation="8" class="pt-7" height="400">
-        <v-row justify="center">
-          <v-col cols="2">
+        <v-row justify="center" class="px-4">
+          <v-col>
             <v-text-field v-model="valor" label="Valor" hide-details="auto" type="number" min="0"></v-text-field>
           </v-col>
-          <v-col cols="3">
+          <v-col>
             <v-select v-model="de" :items="symbols" item-title="moeda" item-value="abreviatura" label="De" outlined></v-select>
           </v-col>
-          <v-col cols="3">
+          <v-col>
             <v-select v-model="para" :items="symbols" item-title="moeda" item-value="abreviatura" label="Para" outlined></v-select>
           </v-col>
         </v-row>
@@ -25,7 +25,7 @@
           <h1>Resultado: {{resultado}}</h1> 
         </v-row>
         <v-row v-if="resultado != null" justify="center">
-          {{valor}} {{de}} = {{resultado}} {{para}}
+          {{valorConvertido}} {{deC}} = {{resultado}} {{paraC}}
         </v-row>
       </v-card>
     </v-container>
@@ -37,20 +37,6 @@
           Trazer moedas SOAP
         </v-btn>
       </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-data-table
-          :headers="headers"
-          :items="moedasSOAP"
-          :items-per-page="20"
-          class="elevation-1"
-        >teste table</v-data-table>
-      </v-col>
-    </v-row>
-  </v-container>
-  <v-container>
-    <v-row>
       <v-col>
         <v-btn elevation="2" color="primary" @click="getCurrenciesREST">
           Trazer moedas REST
@@ -59,12 +45,22 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-data-table
-          :headers="headers"
-          :items="moedasREST"
-          :items-per-page="20"
-          class="elevation-1"
-        >teste table</v-data-table>
+        <div style="max-height: 20vh; overflow-y: scroll;">
+          <v-card outlined elevation="2" color="blue">
+            <div v-for="o in moedasSOAP" :key="o.abreviatura" class="px-4">
+              <p>{{o.moeda}}: {{o.abreviatura}}</p>
+            </div>
+          </v-card>
+        </div>
+      </v-col>
+      <v-col>
+        <div style="max-height: 20vh; overflow-y: scroll;">
+          <v-card outlined elevation="2" color="grey" >
+            <div v-for="o in moedasREST" :key="o.abreviatura" class="px-4">
+              <p>{{o.moeda}}: {{o.abreviatura}}</p>
+            </div>
+          </v-card>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -81,8 +77,11 @@ export default {
       symbolsJson: null,
       symbols: [],
       de: null,
+      deC: null,
       para: null,
+      paraC: null,
       valor: null,
+      valorConvertido: null,
       resultado: null,
       headers: [
         {text: 'Abreviatura', value: 'abreviatura'},
@@ -117,12 +116,11 @@ export default {
       for(let i = 0; i < this.symbolsJson.length; i++){
         if(this.symbolsJson[i].elements[0].elements != null){
           let abreviatura = this.symbolsJson[i].elements[0].elements[0].text
-          let moeda = this.symbolsJson[i].elements[1].elements[0].text
-          symbols[i] = {abreviatura: abreviatura, moeda: moeda}
+          //let moeda = this.symbolsJson[i].elements[1].elements[0].text
+          symbols[i] = {abreviatura: abreviatura, moeda: abreviatura}
         }
       }
       this.symbols = symbols
-      //console.log(symbols)
     },
 
     async convert(from, to, amount) {
@@ -139,13 +137,20 @@ export default {
       let para = to == null ? "" : String(to)
       let valor = amount == null ? 0 : String(amount)
 
+      this.valorConvertido = amount;
+      this.deC = from;
+      this.paraC = to;
+
       return fetch(
         `https://api.apilayer.com/exchangerates_data/convert?to=${de}&from=${para}&amount=${valor}`,
         requestOptions
       )
         .then((response) => response.json())
-        .then((result) => this.resultado = result.result)
+        .then((result) =>
+          this.resultado = result.result
+        )
         .catch((error) => console.log("error", error));
+
     },
 
     async getCurrenciesSOAP(){
@@ -173,11 +178,10 @@ export default {
         if(symbolsJson[i].elements[0].elements != null){
           let abreviatura = symbolsJson[i].elements[0].elements[0].text
           let moeda = symbolsJson[i].elements[1].elements[0].text
-          symbols[i] = {abreviatura: abreviatura, moeda: moeda}
+          symbols.push({abreviatura: abreviatura, moeda: moeda})
         }
       }
       this.moedasSOAP = symbols
-      console.log(symbols)
     },
 
     async getCurrenciesREST(){
@@ -202,7 +206,6 @@ export default {
         array[i] = {abreviatura: key, moeda: symbols[key]}
         i++
       }
-      console.log(array)
       this.moedasREST = array
     }
   },
